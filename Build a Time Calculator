@@ -1,0 +1,62 @@
+def add_time(start, duration, start_day=None):
+    #days of the week
+    days_of_week = ["Monday", "Tuesday","Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    #convert 12 hour time to 24 hour 
+    def to_24_hour(time_str):
+        hour, minute_period = time_str.split(':')
+        minute, period = minute_period.split()
+        hour = int(hour)
+        minute = int(minute)
+        if period == "PM" and hour != 12:
+            hour += 12
+        elif period == "AM" and hour == 12:
+            hour = 0
+        return hour, minute  
+    #convert back to 12 hour time
+    def to_12_hour(hour, minute):
+        period = "AM" if hour < 12 else "PM"
+        if hour == 0:
+            hour = 12
+        elif hour > 12:
+            hour -= 12
+        elif hour == 12:
+            period = "PM"
+        return f"{hour}:{minute:02d} {period}"
+    #start time and duration to integers
+    start_hour, start_minute = to_24_hour(start)
+    duration_hours, duration_minutes = map(int, duration.split(':'))
+    
+    #Calculate new time
+    end_hour = start_hour + duration_hours
+    end_minute = start_minute + duration_minutes
+    if end_minute >= 60:
+        end_minute -= 60
+        end_hour += 1
+    days_passed = 0
+    if end_hour >= 24:
+        days_passed = end_hour // 24
+        end_hour = end_hour % 24
+    
+    #find day of week with start day 
+    if start_day:
+        start_day = start_day.capitalize()
+        start_index = days_of_week.index(start_day)
+        end_day_index = (start_index + days_passed) % 7
+        end_day = days_of_week[end_day_index]
+    else:
+        end_day = ""
+    
+    # Convert back to 12-hour format
+    new_time_str = to_12_hour(end_hour,end_minute)
+    
+    #Determine day info
+    if days_passed == 0:
+        day_info_str = ""
+    elif days_passed == 1:
+        day_info_str = " (next day)"
+    else:
+        day_info_str = f" ({days_passed} days later)"  
+    if end_day:
+        return f"{new_time_str}, {end_day}{day_info_str}"
+    else:
+        return f"{new_time_str}{day_info_str}"
